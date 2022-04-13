@@ -5,25 +5,17 @@ num_clusters = [4 5 6 7 8];
 sse_kmeans = zeros(1, size(num_clusters,2));
 sse_kmeans_spectral = zeros(1, size(num_clusters,2));
 num_samples = size(data,1);
-% init_cluster_assignments = zeros(num_samples, 1);
+init_cluster_assignments = zeros(num_samples, 1);
 for i=1:size(num_clusters,2)
     [cluster_assignments] = kmeans_(data,init_cluster_assignments, num_clusters(i), num_samples);
     sse_kmeans(i) = calc_sse(data, cluster_assignments, num_clusters(i));
-    kmeansplot(data, cluster_assignments, num_clusters(i));
+    scatterplot(data, cluster_assignments, num_clusters(i));
     [cluster_assignments] = kmeans_spectral(data, init_cluster_assignments, num_clusters(i), num_samples);
     sse_kmeans_spectral(i) = calc_sse(data, cluster_assignments, num_clusters(i));
-    kmeansplot(data, cluster_assignments, num_clusters(i));
+    scatterplot(data, cluster_assignments, num_clusters(i));
 end
 figplot(num_clusters, sse_kmeans)
 figplot(num_clusters, sse_kmeans_spectral)
-
-function [] = figplot(num_clusters, sse)
-figure; 
-plot(num_clusters, sse); 
-xlabel('Num Clusters'); 
-ylabel('SSE'); 
-title('Variation of SSE');
-end
 
 function [cluster_assignments] = kmeans_spectral(data, cluster_assignments, num_cluster,num_samples)
    [U, S, V] = svd(data);
@@ -38,7 +30,7 @@ function [cluster_assignments] = kmeans_(data, cluster_assignments, num_cluster,
     temp = randperm(num_samples);
     cluster_center_idx = temp(1:num_cluster);
     cluster_centers = data(cluster_center_idx, :);
-    fprintf('Initialized Cluster centers - %d\n', cluster_centers);
+    %fprintf('Initialized Cluster centers - %d\n', cluster_centers);
     diff = inf;
     count_iter = 0;
     while(diff ~= 0)
@@ -78,7 +70,7 @@ function [sse] = calc_sse(data, cluster_assignments, num_clusters)
     end
 end
 
-function [] = kmeansplot(data, cluster_assignments, num_clusters)
+function [] = scatterplot(data, cluster_assignments, num_clusters)
     num_features = size(data,2);
     if num_features>2
         pc = pca(data);
@@ -90,4 +82,12 @@ function [] = kmeansplot(data, cluster_assignments, num_clusters)
     title(strcat('Num clusters=', int2str(num_clusters)));
     hold off;
     pause(3);
+end
+
+function [] = figplot(num_clusters, sse)
+figure; 
+plot(num_clusters, sse); 
+xlabel('Num Clusters'); 
+ylabel('SSE'); 
+title('Variation of SSE');
 end
